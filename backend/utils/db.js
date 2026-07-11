@@ -40,6 +40,25 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_leads_mobile   ON leads(mobile_without_country_code);
   CREATE INDEX IF NOT EXISTS idx_leads_status   ON leads(crm_status);
   CREATE INDEX IF NOT EXISTS idx_leads_imported ON leads(imported_at DESC);
+
+  CREATE TABLE IF NOT EXISTS team_members (
+    id      INTEGER PRIMARY KEY AUTOINCREMENT,
+    name    TEXT NOT NULL,
+    email   TEXT NOT NULL UNIQUE,
+    role    TEXT NOT NULL DEFAULT 'Agent',
+    status  TEXT NOT NULL DEFAULT 'Pending',
+    joined  TEXT NOT NULL,
+    avatar  TEXT,
+    color   TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS custom_fields (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    name     TEXT NOT NULL UNIQUE,
+    label    TEXT NOT NULL,
+    type     TEXT NOT NULL DEFAULT 'Text',
+    required INTEGER NOT NULL DEFAULT 0
+  );
 `);
 
 module.exports = db;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, RefreshCw, Upload, Trash2, ChevronDown, X, Filter, Eye, AlertCircle } from "lucide-react";
+import { Search, RefreshCw, Upload, Trash2, ChevronDown, X, Filter, Eye, AlertCircle, Download } from "lucide-react";
 import { CRMRecord, StatsResponse, getStatusStyle, CRM_STATUS_OPTIONS } from "@/types/crm";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { leadsAPI } from "@/services/api";
@@ -54,23 +54,17 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
     }
   }, []);
 
-  // Initial fetch on mount
+  // Single effect handles: mount, refreshKey change, search/filter change
   useEffect(() => {
-    fetchData("", "");
-  }, [fetchData]);
-
-  // Fetch when refreshKey changes (new import)
-  useEffect(() => {
-    if (prevRefreshKey.current === refreshKey) return;
-    prevRefreshKey.current = refreshKey;
-    setActiveSearch(""); setSearchInput(""); setFilterStatus(""); setSelected(null);
-    fetchData("", "");
-  }, [refreshKey, fetchData]);
-
-  // Fetch when search/filter changes
-  useEffect(() => {
-    fetchData(activeSearch, filterStatus);
-  }, [activeSearch, filterStatus, fetchData]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (prevRefreshKey.current !== refreshKey) {
+      prevRefreshKey.current = refreshKey;
+      setActiveSearch(""); setSearchInput(""); setFilterStatus(""); setSelected(null);
+      fetchData("", "");
+    } else {
+      fetchData(activeSearch, filterStatus);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshKey, activeSearch, filterStatus]);
 
   const refreshStats = async () => {
     try { const r = await leadsAPI.getStats(); setStats(r.data.data); } catch { /* silent */ }
@@ -124,6 +118,12 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
     setDeleting(null);
   };
 
+  const handleExport = () => {
+    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const url  = `${base}/leads/export${filterStatus ? `?status=${filterStatus}` : ""}`;
+    window.open(url, "_blank");
+  };
+
   const handleClearAll = async () => {
     if (!confirm("Clear ALL leads and import history? This cannot be undone.")) return;
     try {
@@ -147,9 +147,14 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {total > 0 && (
-            <button onClick={handleClearAll} style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 9, padding: "9px 14px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-              <Trash2 size={13} /> Clear All
-            </button>
+            <>
+              <button onClick={handleExport} style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 9, padding: "9px 14px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                <Download size={13} /> Export CSV
+              </button>
+              <button onClick={handleClearAll} style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", color: "#dc2626", border: "1px solid #fecaca", borderRadius: 9, padding: "9px 14px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                <Trash2 size={13} /> Clear All
+              </button>
+            </>
           )}
           <button onClick={onImportClick} style={{ display: "flex", alignItems: "center", gap: 7, background: "#f97316", color: "#fff", border: "none", borderRadius: 9, padding: "9px 18px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
             <Upload size={13} /> Import CSV

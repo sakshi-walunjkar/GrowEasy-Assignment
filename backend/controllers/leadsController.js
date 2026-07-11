@@ -16,24 +16,18 @@ exports.getLeads = (req, res) => {
     params.push(status.trim());
   }
 
-  const where = conditions.length ? " WHERE " + conditions.join(" AND ") : "";
-  const total = db.prepare(`SELECT COUNT(*) as count FROM leads${where}`).get(...params).count;
+  const where   = conditions.length ? " WHERE " + conditions.join(" AND ") : "";
+  const total   = db.prepare(`SELECT COUNT(*) as count FROM leads${where}`).get(params).count;
 
-  const pageNum   = Math.max(1, parseInt(page) || 1);
-  const limitNum  = Math.min(200, Math.max(1, parseInt(limit) || 50));
-  const offset    = (pageNum - 1) * limitNum;
+  const pageNum  = Math.max(1, parseInt(page) || 1);
+  const limitNum = Math.min(200, Math.max(1, parseInt(limit) || 50));
+  const offset   = (pageNum - 1) * limitNum;
 
   const data = db.prepare(
     `SELECT * FROM leads${where} ORDER BY imported_at DESC LIMIT ? OFFSET ?`
-  ).all(...params, limitNum, offset);
+  ).all([...params, limitNum, offset]);
 
-  return res.status(200).json({
-    success: true,
-    total,
-    page: pageNum,
-    limit: limitNum,
-    data,
-  });
+  return res.status(200).json({ success: true, total, page: pageNum, limit: limitNum, data });
 };
 
 exports.getLeadById = (req, res) => {
@@ -66,7 +60,7 @@ exports.updateLead = (req, res) => {
   updates.push("updated_at = ?");
   params.push(new Date().toISOString(), req.params.id);
 
-  db.prepare(`UPDATE leads SET ${updates.join(", ")} WHERE id = ?`).run(...params);
+  db.prepare(`UPDATE leads SET ${updates.join(", ")} WHERE id = ?`).run(params);
   const updated = db.prepare("SELECT * FROM leads WHERE id = ?").get(req.params.id);
 
   return res.status(200).json({ success: true, data: updated });
@@ -85,6 +79,16 @@ exports.clearLeads = (req, res) => {
   return res.status(200).json({ success: true, message: "All leads and history cleared" });
 };
 
+exports.getImportHistory = (req, res) => {
+  const { page = 1, limit = 20 } = req.query;
+  const pageNum  = Math.max(1, parseInt(page) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 20));
+  const offset   = (pageNum - 1) * limitNum;
+  const total    = db.prepare("SELECT COUNT(*) as count FROM import_history").get().count;
+  const data     = db.prepare("SELECT * FROM import_history ORDER BY imported_at DESC LIMIT ? OFFSET ?").all(limitNum, offset);
+  return res.status(200).json({ success: true, total, page: pageNum, limit: limitNum, data });
+};
+
 exports.getStats = (req, res) => {
   const total = db.prepare("SELECT COUNT(*) as count FROM leads").get().count;
 
@@ -99,13 +103,46 @@ exports.getStats = (req, res) => {
     "SELECT * FROM import_history ORDER BY imported_at DESC LIMIT 20"
   ).all();
 
+  const totalImports = db.prepare("SELECT COUNT(*) as count FROM import_history").get().count;
+
   return res.status(200).json({
     success: true,
-    data: {
-      totalLeads: total,
-      byStatus,
-      importHistory,
-      lastImport: importHistory[0] || null,
-    },
+    data: { totalLeads: total, totalImports, byStatus, importHistory, lastImport: importHistory[0] || null },
   });
+};
+
+exports.exportLeads = (req, res) => {
+  const { status } = req.query;
+  const conditions = [];
+  const params = [];
+
+  if (status && status.trim()) {
+    conditions.push("crm_status = ?");
+    params.push(status.trim());
+  }
+
+  const where = conditions.length ? " WHERE " + conditions.join(" AND ") : "";
+  const leads = db.prepare(`SELECT * FROM leads${where} ORDER BY imported_at DESC`).all(params);
+
+  const fields = [
+    "id", "created_at", "name", "email", "country_code", "mobile_without_country_code",
+    "company", "city", "state", "country", "lead_owner", "crm_status", "crm_note",
+    "data_source", "possession_time", "description", "imported_at",
+  ];
+
+  const escape = (v) => {
+    if (v == null || v === "") return "";
+    const s = String(v);
+    if (s.includes(",") || s.includes('"') || s.includes("\n")) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+  };
+
+  const rows = [fields.join(",")];
+  for (const lead of leads) {
+    rows.push(fields.map(f => escape(lead[f])).join(","));
+  }
+
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", `attachment; filename="groweasy_leads_${Date.now()}.csv"`);
+  return res.status(200).send(rows.join("\n"));
 };

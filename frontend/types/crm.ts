@@ -51,6 +51,7 @@ export interface StatsResponse {
   success: boolean;
   data: {
     totalLeads: number;
+    totalImports: number;
     byStatus: {
       GOOD_LEAD_FOLLOW_UP: number;
       SALE_DONE: number;

@@ -1,7 +1,8 @@
 "use client";
 
 import { Plus, Pencil, Trash2, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { fieldsAPI } from "@/services/api";
 
 type Field = { name: string; label: string; type: string; required: boolean; system: boolean };
 
@@ -51,6 +52,13 @@ export default function CRMFields() {
   const [deleteIdx, setDeleteIdx] = useState<number | null>(null);
   const [toast, setToast]         = useState("");
 
+  // Load custom fields from DB and merge with system fields
+  useEffect(() => {
+    fieldsAPI.getAll()
+      .then(r => setFields([...defaultFields, ...r.data.data]))
+      .catch(() => {});
+  }, []);
+
   const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 2500); };
 
   const openAdd = () => { setForm(emptyForm); setEditIdx(null); setShowModal(true); };
@@ -61,22 +69,39 @@ export default function CRMFields() {
     setShowModal(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim() || !form.label.trim()) return;
     const slug = form.name.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
     if (editIdx !== null) {
-      setFields(prev => prev.map((f, i) => i === editIdx ? { ...f, label: form.label.trim(), type: form.type, required: form.required } : f));
+      const f = fields[editIdx];
+      if (f.system) {
+        // system fields: update locally only
+        setFields(prev => prev.map((f, i) => i === editIdx ? { ...f, label: form.label.trim(), type: form.type, required: form.required } : f));
+      } else {
+        try {
+          const r = await fieldsAPI.update((f as any).id, { label: form.label.trim(), type: form.type, required: form.required });
+          setFields(prev => prev.map((f, i) => i === editIdx ? { ...r.data.data, system: false } : f));
+        } catch { showToast("Failed to update field."); return; }
+      }
       showToast("Field updated.");
     } else {
-      if (fields.some(f => f.name === slug)) { showToast("Field name already exists."); return; }
-      setFields(prev => [...prev, { name: slug, label: form.label.trim(), type: form.type, required: form.required, system: false }]);
-      showToast("Custom field added.");
+      try {
+        const r = await fieldsAPI.add({ name: slug, label: form.label.trim(), type: form.type, required: form.required });
+        setFields(prev => [...prev, r.data.data]);
+        showToast("Custom field added.");
+      } catch (err: any) {
+        showToast(err?.response?.data?.message || "Failed to add field."); return;
+      }
     }
     setShowModal(false);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (deleteIdx === null) return;
+    const f = fields[deleteIdx];
+    if (!f.system) {
+      try { await fieldsAPI.remove((f as any).id); } catch { showToast("Failed to delete field."); return; }
+    }
     setFields(prev => prev.filter((_, i) => i !== deleteIdx));
     setDeleteIdx(null);
     showToast("Field deleted.");
@@ -148,9 +173,9 @@ export default function CRMFields() {
                     </td>
                     <td style={{ padding: "11px 16px" }}>
                       <div style={{ display: "flex", gap: 8 }}>
-                        <button onClick={() => !f.system && openEdit(i)}
-                          title={f.system ? "System fields cannot be edited" : "Edit field"}
-                          style={{ background: "none", border: "none", cursor: f.system ? "not-allowed" : "pointer", color: f.system ? "#d1d5db" : "#6b7280", padding: 4, borderRadius: 6 }}>
+                        <button onClick={() => openEdit(i)}
+                          title="Edit field"
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "#6b7280", padding: 4, borderRadius: 6 }}>
                           <Pencil size={13} />
                         </button>
                         <button onClick={() => !f.system && setDeleteIdx(i)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { X, FileText, Sparkles } from "lucide-react";
+import { X, FileText, Sparkles, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface Props {
   data: Record<string, string>[];
@@ -10,9 +10,49 @@ interface Props {
   onConfirm: () => void;
 }
 
+const CRM_FIELDS = ["name","email","mobile","phone","country_code","company","city","state","country","lead_owner","crm_status","crm_note","data_source","possession_time","description","created_at","date","full name","contact","mobile_without_country_code"];
+
+function analyzeCSV(data: Record<string, string>[]) {
+  if (!data.length) return [];
+  const warnings: { type: "warn" | "info"; message: string }[] = [];
+  const headers = Object.keys(data[0]).map(h => h.toLowerCase().trim());
+
+  // Check for email/phone columns
+  const hasEmail  = headers.some(h => h.includes("email") || h.includes("mail"));
+  const hasPhone  = headers.some(h => h.includes("phone") || h.includes("mobile") || h.includes("contact") || h.includes("mob") || h.includes("tel"));
+  if (!hasEmail && !hasPhone)
+    warnings.push({ type: "warn", message: "No email or phone column detected — all rows may be skipped (both are required for a valid lead)." });
+  else if (!hasEmail)
+    warnings.push({ type: "info", message: "No email column found — leads will be identified by phone number only." });
+  else if (!hasPhone)
+    warnings.push({ type: "info", message: "No phone column found — leads will be identified by email only." });
+
+  // Check for name column
+  const hasName = headers.some(h => h.includes("name") || h.includes("contact") || h.includes("customer"));
+  if (!hasName)
+    warnings.push({ type: "info", message: "No name column detected — the name field may be left blank after import." });
+
+  // Check for empty rows
+  const emptyRows = data.filter(row => Object.values(row).every(v => !v?.trim())).length;
+  if (emptyRows > 0)
+    warnings.push({ type: "warn", message: `${emptyRows} completely empty row${emptyRows > 1 ? "s" : ""} detected — these will be skipped.` });
+
+  // Check for unknown columns
+  const unknownCols = Object.keys(data[0]).filter(h => !CRM_FIELDS.some(f => h.toLowerCase().includes(f) || f.includes(h.toLowerCase())));
+  if (unknownCols.length > 0 && unknownCols.length <= 5)
+    warnings.push({ type: "info", message: `${unknownCols.length} unrecognized column${unknownCols.length > 1 ? "s" : ""} (${unknownCols.slice(0,3).join(", ")}${unknownCols.length > 3 ? "..." : ""}) — AI will attempt to map these automatically.` });
+
+  // Large file warning
+  if (data.length > 200)
+    warnings.push({ type: "info", message: `Large file: ${data.length} rows will be processed in ${Math.ceil(data.length / 15)} batches. This may take a minute.` });
+
+  return warnings;
+}
+
 export default function PreviewModal({ data, filename, filesize, onClose, onConfirm }: Props) {
-  const headers = data.length > 0 ? Object.keys(data[0]) : [];
-  const preview = data.slice(0, 100); // show max 100 rows in preview
+  const headers  = data.length > 0 ? Object.keys(data[0]) : [];
+  const preview  = data.slice(0, 100);
+  const warnings = analyzeCSV(data);
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -66,6 +106,22 @@ export default function PreviewModal({ data, filename, filesize, onClose, onConf
             </div>
           </div>
         </div>
+
+        {/* Validation warnings */}
+        {warnings.length > 0 && (
+          <div style={{ padding: "0 24px 12px", flexShrink: 0 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {warnings.map((w, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "9px 12px", borderRadius: 8, background: w.type === "warn" ? "#fef3c7" : "#eff6ff", border: `1px solid ${w.type === "warn" ? "#fde68a" : "#bfdbfe"}` }}>
+                  {w.type === "warn"
+                    ? <AlertTriangle size={14} color="#d97706" style={{ flexShrink: 0, marginTop: 1 }} />
+                    : <CheckCircle   size={14} color="#3b82f6" style={{ flexShrink: 0, marginTop: 1 }} />}
+                  <span style={{ fontSize: 12, color: w.type === "warn" ? "#92400e" : "#1e40af", lineHeight: 1.5 }}>{w.message}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Table */}
         <div style={{ padding: "12px 24px", flex: 1, overflow: "hidden", display: "flex", flexDirection: "column", minHeight: 0 }}>

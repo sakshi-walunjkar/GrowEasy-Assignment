@@ -38,3 +38,17 @@ export const uploadAPI = {
   process: (records: Record<string, string>[]) =>
     API.post<ProcessResponse>("/process", { records }),
 };
+
+export const teamAPI = {
+  getAll:  ()                                              => API.get("/team"),
+  add:     (data: { name: string; email: string; role: string }) => API.post("/team", data),
+  update:  (id: number, data: { role?: string; status?: string }) => API.patch(`/team/${id}`, data),
+  remove:  (id: number)                                   => API.delete(`/team/${id}`),
+};
+
+export const fieldsAPI = {
+  getAll:  ()                                                                        => API.get("/fields"),
+  add:     (data: { name: string; label: string; type: string; required: boolean }) => API.post("/fields", data),
+  update:  (id: number, data: { label?: string; type?: string; required?: boolean }) => API.patch(`/fields/${id}`, data),
+  remove:  (id: number)                                                              => API.delete(`/fields/${id}`),
+};

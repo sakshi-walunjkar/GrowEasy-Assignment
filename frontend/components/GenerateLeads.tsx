@@ -32,7 +32,7 @@ export default function GenerateLeads({ onNavigate }: Props) {
             <p style={{ color: "#6b7280", fontSize: 13, marginTop: 4 }}>Connect channels and automate lead generation across platforms.</p>
           </div>
           <button
-            onClick={() => onNavigate("lead-sources")}
+            onClick={() => onNavigate("import-csv")}
             style={{ display: "flex", alignItems: "center", gap: 8, background: "#111827", color: "#fff", border: "none", borderRadius: 10, padding: "9px 18px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
           >
             <Plus size={14} /> Add Channel
@@ -75,7 +75,7 @@ export default function GenerateLeads({ onNavigate }: Props) {
                     <span style={{ fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 999, background: ch.status === "Active" ? "#dcfce7" : "#f3f4f6", color: ch.status === "Active" ? "#15803d" : "#6b7280" }}>
                       {ch.status}
                     </span>
-                    <button onClick={() => onNavigate("lead-sources")} style={{ fontSize: 12, color: "#3b82f6", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3, fontWeight: 500 }}>
+                    <button onClick={() => onNavigate("import-csv")} style={{ fontSize: 12, color: "#3b82f6", background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 3, fontWeight: 500 }}>
                       Manage <ArrowRight size={11} />
                     </button>
                   </div>

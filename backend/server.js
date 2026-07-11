@@ -4,6 +4,8 @@ require("dotenv").config();
 
 const uploadRoutes = require("./routes/uploadRoutes");
 const leadsRoutes  = require("./routes/leadsRoutes");
+const teamRoutes   = require("./routes/teamRoutes");
+const fieldsRoutes = require("./routes/fieldsRoutes");
 
 const app = express();
 
@@ -24,19 +26,17 @@ app.use((req, _res, next) => {
 
 app.use("/api", uploadRoutes);
 app.use("/api/leads", leadsRoutes);
+app.use("/api/team", teamRoutes);
+app.use("/api/fields", fieldsRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ success: true, message: "GrowEasy Backend Running", version: "1.0.0" });
 });
 
-// Gemini key status check (no key exposed)
 app.get("/api/gemini-status", (_req, res) => {
   const key = process.env.GEMINI_API_KEY || "";
-  if (!key || key === "your_gemini_api_key_here" || key.length < 20 || !key.startsWith("AIza")) {
-    return res.json({ status: "missing" });
-  }
-  // Key looks set — we trust it's valid (actual validation happens on first AI call)
-  return res.json({ status: "configured" });
+  const missing = !key || key === "your_gemini_api_key_here" || key.length < 20 || !key.startsWith("AIza");
+  res.json({ status: missing ? "missing" : "configured" });
 });
 
 app.use((req, res) => {
@@ -56,8 +56,10 @@ app.listen(PORT, () => {
   console.log(`   POST   /api/process`);
   console.log(`   GET    /api/leads`);
   console.log(`   GET    /api/leads/stats`);
+  console.log(`   GET    /api/leads/export`);
   console.log(`   GET    /api/leads/:id`);
   console.log(`   PATCH  /api/leads/:id`);
   console.log(`   DELETE /api/leads/:id`);
-  console.log(`   DELETE /api/leads\n`);
+  console.log(`   DELETE /api/leads`);
+  console.log(`   GET    /api/gemini-status\n`);
 });

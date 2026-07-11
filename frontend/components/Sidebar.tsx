@@ -3,10 +3,10 @@
 import {
   LayoutDashboard, Zap, Database, MessageSquare,
   Users, Radio, UserPlus, MessageCircle,
-  Phone, Grid, Link, Settings
+  Phone, Grid, Link, Settings, History
 } from "lucide-react";
 
-type Page = "dashboard" | "generate-leads" | "manage-leads" | "engage-leads" | "lead-sources" | "team-members" | "ad-accounts" | "whatsapp-account" | "tele-calling" | "crm-fields" | "api-center";
+type Page = "dashboard" | "generate-leads" | "manage-leads" | "engage-leads" | "lead-sources" | "team-members" | "ad-accounts" | "whatsapp-account" | "tele-calling" | "crm-fields" | "api-center" | "import-history";
 
 interface Props {
   activePage: Page;
@@ -14,10 +14,11 @@ interface Props {
 }
 
 const mainNav = [
-  { icon: LayoutDashboard, label: "Dashboard",      key: "dashboard" as Page },
-  { icon: Zap,             label: "Generate Leads", key: "generate-leads" as Page },
-  { icon: Database,        label: "Manage Leads",   key: "manage-leads" as Page },
-  { icon: MessageSquare,   label: "Engage Leads",   key: "engage-leads" as Page },
+  { icon: LayoutDashboard, label: "Dashboard",       key: "dashboard" as Page },
+  { icon: Zap,             label: "Generate Leads",  key: "generate-leads" as Page },
+  { icon: Database,        label: "Manage Leads",    key: "manage-leads" as Page },
+  { icon: History,         label: "Import History",  key: "import-history" as Page },
+  { icon: MessageSquare,   label: "Engage Leads",    key: "engage-leads" as Page },
 ];
 
 const controlNav = [

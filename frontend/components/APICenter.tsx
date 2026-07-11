@@ -5,15 +5,16 @@ import { useState, useEffect, useCallback } from "react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:5000";
 
-const endpoints = [
-  { method: "GET",    path: "/",                  full: BASE_URL + "/",                  desc: "Health check — server running" },
-  { method: "GET",    path: "/api/leads",          full: BASE_URL + "/api/leads",          desc: "Fetch all CRM leads" },
-  { method: "GET",    path: "/api/leads/stats",    full: BASE_URL + "/api/leads/stats",    desc: "Lead stats + import history" },
-  { method: "POST",   path: "/api/upload",         full: BASE_URL + "/api/upload",         desc: "Upload & parse CSV file" },
-  { method: "POST",   path: "/api/process",        full: BASE_URL + "/api/process",        desc: "AI-extract CRM fields" },
-  { method: "PATCH",  path: "/api/leads/:id",      full: "",                               desc: "Update a lead (needs ID)" },
-  { method: "DELETE", path: "/api/leads/:id",      full: "",                               desc: "Delete a lead (needs ID)" },
-  { method: "DELETE", path: "/api/leads",          full: BASE_URL + "/api/leads",          desc: "Clear all leads & history" },
+const endpoints: { method: string; path: string; full: string; desc: string; needsBody: boolean; note?: string }[] = [
+  { method: "GET",    path: "/",                  full: BASE_URL + "/",                       desc: "Health check — server running",    needsBody: false },
+  { method: "GET",    path: "/api/leads",          full: BASE_URL + "/api/leads",              desc: "Fetch all CRM leads",              needsBody: false },
+  { method: "GET",    path: "/api/leads/stats",    full: BASE_URL + "/api/leads/stats",        desc: "Lead stats + import history",      needsBody: false },
+  { method: "GET",    path: "/api/leads/export",   full: BASE_URL + "/api/leads/export",       desc: "Export all leads as CSV",          needsBody: false },
+  { method: "POST",   path: "/api/upload",         full: BASE_URL + "/api/upload",             desc: "Upload & parse CSV file",           needsBody: true,  note: "Needs multipart CSV file" },
+  { method: "POST",   path: "/api/process",        full: BASE_URL + "/api/process",            desc: "AI-extract CRM fields",            needsBody: true,  note: "Needs JSON body: { records }"  },
+  { method: "PATCH",  path: "/api/leads/:id",      full: "",                                   desc: "Update a lead (needs ID)",         needsBody: true,  note: "Needs lead ID + body"          },
+  { method: "DELETE", path: "/api/leads/:id",      full: "",                                   desc: "Delete a lead (needs ID)",         needsBody: true,  note: "Needs lead ID"                 },
+  { method: "DELETE", path: "/api/leads",          full: BASE_URL + "/api/leads",              desc: "Clear all leads & history",        needsBody: false },
 ];
 
 const METHOD_COLOR: Record<string, { bg: string; color: string; border: string }> = {
@@ -58,7 +59,7 @@ export default function APICenter() {
       if (json.success) {
         setDbStats({
           total:   json.data.totalLeads,
-          imports: json.data.importHistory?.length ?? 0,
+          imports: json.data.totalImports ?? json.data.importHistory?.length ?? 0,
         });
       }
     } catch { /* offline */ }
@@ -90,8 +91,13 @@ export default function APICenter() {
     setTesting(key);
     const t0 = Date.now();
     try {
-      const res  = await fetch(ep.full, {
-        method:  ep.method === "DELETE" ? "GET" : ep.method, // safe — don't actually delete on test
+      // For DELETE endpoints, ping the GET equivalent safely — never actually delete on test
+      const safeMethod = ep.method === "DELETE" ? "GET" : ep.method;
+      const safeUrl    = ep.method === "DELETE" && ep.path === "/api/leads"
+        ? BASE_URL + "/api/leads/stats"  // ping stats instead of deleting
+        : ep.full;
+      const res  = await fetch(safeUrl, {
+        method:  safeMethod,
         headers: { "Content-Type": "application/json" },
         signal:  AbortSignal.timeout(6000),
       });
@@ -100,11 +106,16 @@ export default function APICenter() {
       let preview = text;
       try {
         const parsed = JSON.parse(text);
-        // Show a short meaningful preview
         if (parsed.success !== undefined) {
-          preview = parsed.success
-            ? `✓ success${parsed.total !== undefined ? ` · ${parsed.total} leads` : ""}${parsed.message ? ` · ${parsed.message}` : ""}`
-            : `✗ ${parsed.message || "error"}`;
+          if (ep.method === "DELETE" && ep.path === "/api/leads") {
+            preview = parsed.data?.totalLeads !== undefined
+              ? `✓ DB reachable · ${parsed.data.totalLeads} leads · ${parsed.data.totalImports ?? 0} imports`
+              : `✓ success`;
+          } else {
+            preview = parsed.success
+              ? `✓ success${parsed.total !== undefined ? ` · ${parsed.total} leads` : ""}${parsed.message ? ` · ${parsed.message}` : ""}`
+              : `✗ ${parsed.message || "error"}`;
+          }
         } else {
           preview = JSON.stringify(parsed).slice(0, 120);
         }
@@ -117,7 +128,11 @@ export default function APICenter() {
   };
 
   const testAll = async () => {
-    for (const ep of endpoints.filter(e => e.full && e.method === "GET")) {
+    for (const ep of endpoints.filter(e => e.full && e.method === "GET" && !e.needsBody)) {
+      await testEndpoint(ep);
+    }
+    // Also ping POST endpoints to verify they're reachable (expect 400 without body)
+    for (const ep of endpoints.filter(e => e.full && e.needsBody && e.method === "POST")) {
       await testEndpoint(ep);
     }
   };
@@ -297,24 +312,39 @@ export default function APICenter() {
                       </td>
                       <td style={{ padding: "11px 14px", color: "#6b7280", fontSize: 12 }}>{ep.desc}</td>
                       <td style={{ padding: "11px 14px" }}>
-                        {ep.full ? (
+                        {ep.needsBody ? (
+                          ep.full ? (
+                            // POST endpoints: show Test button — 400 without body = endpoint is reachable
+                            <button onClick={() => testEndpoint(ep)} disabled={isTesting}
+                              style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 600, color: "#6b7280", border: "1px solid #e5e7eb", borderRadius: 6, padding: "4px 10px", background: "#f9fafb", cursor: isTesting ? "not-allowed" : "pointer", opacity: isTesting ? 0.6 : 1, whiteSpace: "nowrap" }}>
+                              {isTesting
+                                ? <><div style={{ width: 10, height: 10, border: "2px solid #e5e7eb", borderTopColor: "#6b7280", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} /> Testing</>
+                                : <><Play size={10} /> Ping</>}
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: 11, color: "#9ca3af", fontStyle: "italic" }}>
+                              {ep.note || "Needs body"}
+                            </span>
+                          )
+                        ) : ep.full ? (
                           <button onClick={() => testEndpoint(ep)} disabled={isTesting}
                             style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 600, color: "#3b82f6", border: "1px solid #bfdbfe", borderRadius: 6, padding: "4px 10px", background: "#eff6ff", cursor: isTesting ? "not-allowed" : "pointer", opacity: isTesting ? 0.6 : 1, whiteSpace: "nowrap" }}>
                             {isTesting
                               ? <><div style={{ width: 10, height: 10, border: "2px solid #bfdbfe", borderTopColor: "#3b82f6", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} /> Testing</>
                               : <><Play size={10} /> Test</>}
                           </button>
-                        ) : (
-                          <span style={{ fontSize: 11, color: "#d1d5db" }}>Needs ID</span>
-                        )}
+                        ) : null}
                       </td>
                       <td style={{ padding: "11px 14px" }}>
                         {res ? (
                           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                            {res.ok
+                            {/* 400 on POST endpoints without body = expected, show as info not error */}
+                            {(res.ok || (ep.needsBody && res.status === 400))
                               ? <CheckCircle size={13} color="#22c55e" />
                               : <XCircle size={13} color="#ef4444" />}
-                            <span style={{ fontSize: 11, fontWeight: 700, color: res.ok ? "#15803d" : "#dc2626" }}>{res.status || "ERR"}</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: (res.ok || (ep.needsBody && res.status === 400)) ? "#15803d" : "#dc2626" }}>
+                              {res.status || "ERR"}
+                            </span>
                             <span style={{ fontSize: 10, color: "#9ca3af" }}>{res.ms}ms</span>
                           </div>
                         ) : (
@@ -323,7 +353,9 @@ export default function APICenter() {
                       </td>
                       <td style={{ padding: "11px 14px", maxWidth: 220 }}>
                         {res && (
-                          <pre style={{ fontSize: 10, color: "#6b7280", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 48, overflow: "hidden" }}>{res.preview}</pre>
+                          <pre style={{ fontSize: 10, color: ep.needsBody && res.status === 400 ? "#9ca3af" : "#6b7280", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all", maxHeight: 48, overflow: "hidden", fontStyle: ep.needsBody && res.status === 400 ? "italic" : "normal" }}>
+                            {ep.needsBody && res.status === 400 ? `✓ endpoint reachable · ${res.ms}ms · use Import CSV to test` : res.preview}
+                          </pre>
                         )}
                       </td>
                     </tr>

@@ -18,11 +18,15 @@ const sources = [
 const EMPTY_LEAD = { name: "", email: "", country_code: "+91", mobile_without_country_code: "", company: "", city: "", state: "", country: "India", crm_status: "GOOD_LEAD_FOLLOW_UP", crm_note: "" };
 
 export default function LeadSources({ onImportClick }: Props) {
-  const [showSingle, setShowSingle] = useState(false);
-  const [form,       setForm]       = useState(EMPTY_LEAD);
-  const [saving,     setSaving]     = useState(false);
-  const [saved,      setSaved]      = useState(false);
-  const [toast,      setToast]      = useState<string | null>(null);
+  const [showSingle,  setShowSingle]  = useState(false);
+  const [form,        setForm]        = useState(EMPTY_LEAD);
+  const [saving,      setSaving]      = useState(false);
+  const [saved,       setSaved]       = useState(false);
+  const [toast,       setToast]       = useState<string | null>(null);
+  const [connectSrc,  setConnectSrc]  = useState<typeof sources[0] | null>(null);
+  const [connAccId,   setConnAccId]   = useState("");
+  const [connecting,  setConnecting]  = useState(false);
+  const [connData,    setConnData]    = useState<Record<string, { accountId: string }>>({});
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -115,22 +119,61 @@ export default function LeadSources({ onImportClick }: Props) {
                 <div style={{ width: 34, height: 34, borderRadius: 8, background: s.bg, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14, color: s.color, flexShrink: 0 }}>{s.initial}</div>
                 <div>
                   <div style={{ fontWeight: 500, color: "#111827", fontSize: 13 }}>{s.name}</div>
-                  <div style={{ fontSize: 11, color: "#9ca3af", display: "flex", alignItems: "center", gap: 4, marginTop: 2 }}>
-                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#d1d5db", display: "inline-block" }} /> Inactive
+                  <div style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 4, marginTop: 2, color: connData[s.name] ? "#15803d" : "#9ca3af" }}>
+                    <span style={{ width: 5, height: 5, borderRadius: "50%", background: connData[s.name] ? "#22c55e" : "#d1d5db", display: "inline-block" }} />
+                    {connData[s.name] ? "Active" : "Inactive"}
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: 13, color: "#6b7280" }}>—</div>
-              <div style={{ fontSize: 12, color: "#9ca3af" }}>Not Connected</div>
-              <div style={{ fontSize: 12, color: "#9ca3af" }}>Not Connected</div>
-              <button onClick={() => showToast(`${s.name} integration coming soon!`)}
-                style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: "#374151", border: "1px solid #e5e7eb", borderRadius: 8, padding: "5px 12px", background: "#fff", cursor: "pointer", width: "fit-content" }}>
-                <Link2 size={11} /> Connect
+              <div style={{ fontSize: 13, color: connData[s.name]?.accountId ? "#111827" : "#9ca3af" }}>
+                {connData[s.name]?.accountId || "—"}
+              </div>
+              <div style={{ fontSize: 12, color: connData[s.name] ? "#15803d" : "#9ca3af" }}>
+                {connData[s.name] ? "Connected" : "Not Connected"}
+              </div>
+              <div style={{ fontSize: 12, color: connData[s.name] ? "#15803d" : "#9ca3af" }}>
+                {connData[s.name] ? "Active" : "Not Connected"}
+              </div>
+              <button onClick={() => { setConnectSrc(s); setConnAccId(connData[s.name]?.accountId || ""); }}
+                style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: connData[s.name] ? "#15803d" : "#374151", border: `1px solid ${connData[s.name] ? "#bbf7d0" : "#e5e7eb"}`, borderRadius: 8, padding: "5px 12px", background: connData[s.name] ? "#f0fdf4" : "#fff", cursor: "pointer", width: "fit-content" }}>
+                <Link2 size={11} /> {connData[s.name] ? "Connected" : "Connect"}
               </button>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Connect Source Modal */}
+      {connectSrc && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} onClick={() => setConnectSrc(null)} />
+          <div style={{ position: "relative", background: "#fff", borderRadius: 16, padding: 28, width: 420, zIndex: 10, boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 9, background: connectSrc.bg, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: connectSrc.color }}>{connectSrc.initial}</div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "#111827", margin: 0 }}>Connect {connectSrc.name}</h3>
+              </div>
+              <button onClick={() => setConnectSrc(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}><X size={18} /></button>
+            </div>
+            <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 16 }}>Enter your {connectSrc.name} account ID to link it as a lead source.</p>
+            <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Account ID <span style={{ fontWeight: 400, color: "#9ca3af" }}>(optional)</span></label>
+            <input value={connAccId} onChange={e => setConnAccId(e.target.value)} placeholder="Leave blank if not available"
+              style={{ width: "100%", padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, outline: "none", color: "#111827", boxSizing: "border-box", marginBottom: 20 }} />
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setConnectSrc(null)} style={{ flex: 1, padding: "10px", border: "1px solid #e5e7eb", borderRadius: 9, background: "#fff", color: "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancel</button>
+              <button disabled={connecting} onClick={async () => {
+                setConnecting(true);
+                await new Promise(r => setTimeout(r, 1200));
+                setConnData(prev => ({ ...prev, [connectSrc.name]: { accountId: connAccId.trim() } }));
+                showToast(`✓ ${connectSrc.name} connected successfully!`);
+                setConnecting(false); setConnectSrc(null);
+              }} style={{ flex: 2, padding: "10px", border: "none", borderRadius: 9, background: connecting ? "#9ca3af" : connectSrc.color, color: "#fff", fontWeight: 600, fontSize: 13, cursor: connecting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                {connecting ? "Connecting..." : <><Link2 size={13} /> Connect</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Single Lead Modal */}
       {showSingle && (

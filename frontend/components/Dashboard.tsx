@@ -102,7 +102,7 @@ export default function Dashboard({ onNavigate }: Props) {
               style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", borderRadius: 9, padding: "8px 14px", fontWeight: 600, fontSize: 13, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }}>
               <RefreshCw size={13} style={{ animation: loading ? "spin 1s linear infinite" : "none" }} /> Refresh
             </button>
-            <button onClick={() => onNavigate("lead-sources")}
+            <button onClick={() => onNavigate("import-csv")}
               style={{ display: "flex", alignItems: "center", gap: 7, background: "#f97316", color: "#fff", border: "none", borderRadius: 9, padding: "8px 16px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
               <Upload size={13} /> Import CSV
             </button>
@@ -136,7 +136,7 @@ export default function Dashboard({ onNavigate }: Props) {
           <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: "18px 20px" }}>
             <div style={{ fontWeight: 600, color: "#111827", fontSize: 14, marginBottom: 4 }}>Import History</div>
             <div style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16 }}>
-              {stats?.importHistory?.length ?? 0} total imports · {total} leads saved
+              {stats?.totalImports ?? stats?.importHistory?.length ?? 0} total imports · {total} leads saved
             </div>
             {loading ? (
               <div style={{ height: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -157,7 +157,7 @@ export default function Dashboard({ onNavigate }: Props) {
               <div style={{ height: 200, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#9ca3af" }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>📂</div>
                 <div style={{ fontSize: 13 }}>No imports yet</div>
-                <button onClick={() => onNavigate("lead-sources")} style={{ marginTop: 12, fontSize: 12, color: "#f97316", fontWeight: 600, background: "none", border: "1px solid #fed7aa", borderRadius: 7, padding: "5px 14px", cursor: "pointer" }}>
+                <button onClick={() => onNavigate("import-csv")} style={{ marginTop: 12, fontSize: 12, color: "#f97316", fontWeight: 600, background: "none", border: "1px solid #fed7aa", borderRadius: 7, padding: "5px 14px", cursor: "pointer" }}>
                   Import your first CSV
                 </button>
               </div>
@@ -221,7 +221,7 @@ export default function Dashboard({ onNavigate }: Props) {
               </div>
             ) : recentImports.length === 0 ? (
               <div style={{ padding: "40px 20px", textAlign: "center", color: "#9ca3af", fontSize: 13 }}>
-                No imports yet — <button onClick={() => onNavigate("lead-sources")} style={{ color: "#f97316", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>import a CSV</button>
+                No imports yet — <button onClick={() => onNavigate("import-csv")} style={{ color: "#f97316", fontWeight: 600, background: "none", border: "none", cursor: "pointer" }}>import a CSV</button>
               </div>
             ) : (
               recentImports.map((h, i) => {
@@ -259,7 +259,7 @@ export default function Dashboard({ onNavigate }: Props) {
               <div style={{ fontWeight: 600, color: "#111827", fontSize: 14, marginBottom: 12 }}>Quick Actions</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 {[
-                  { label: "Import CSV",     color: "#f97316", bg: "#fff7ed", action: "lead-sources"   },
+                  { label: "Import CSV",     color: "#f97316", bg: "#fff7ed", action: "import-csv"    },
                   { label: "Manage Leads",   color: "#3b82f6", bg: "#eff6ff", action: "manage-leads"   },
                   { label: "Generate Leads", color: "#8b5cf6", bg: "#f5f3ff", action: "generate-leads" },
                   { label: "API Center",     color: "#10b981", bg: "#f0fdf4", action: "api-center"     },

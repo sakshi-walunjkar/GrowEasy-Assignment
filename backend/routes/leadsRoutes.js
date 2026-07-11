@@ -1,5 +1,5 @@
 const express = require("express");
-const router = express.Router();
+const router  = express.Router();
 const {
   getLeads,
   getLeadById,
@@ -7,10 +7,14 @@ const {
   deleteLead,
   clearLeads,
   getStats,
+  exportLeads,
+  getImportHistory,
 } = require("../controllers/leadsController");
 
 router.get("/",        getLeads);
 router.get("/stats",   getStats);
+router.get("/export",  exportLeads);
+router.get("/import-history", getImportHistory);
 router.get("/:id",     getLeadById);
 router.patch("/:id",   updateLead);
 router.delete("/",     clearLeads);

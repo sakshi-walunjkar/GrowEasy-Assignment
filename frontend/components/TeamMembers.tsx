@@ -1,7 +1,8 @@
 "use client";
 
 import { UserPlus, Mail, Trash2, X, MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { teamAPI } from "@/services/api";
 
 type Role = "Owner" | "Admin" | "Agent" | "Viewer";
 type Status = "Active" | "Inactive" | "Pending";
@@ -28,7 +29,8 @@ const ROLE_STYLE: Record<Role, { bg: string; color: string }> = {
 const COLORS = ["#3b82f6","#10b981","#8b5cf6","#f59e0b","#ec4899","#06b6d4","#f97316"];
 
 export default function TeamMembers() {
-  const [members,    setMembers]    = useState<Member[]>(INITIAL);
+  const [members,    setMembers]    = useState<Member[]>([]);
+  const [loading,    setLoading]    = useState(true);
   const [showInvite, setShowInvite] = useState(false);
   const [email,      setEmail]      = useState("");
   const [name,       setName]       = useState("");
@@ -36,6 +38,13 @@ export default function TeamMembers() {
   const [sending,    setSending]    = useState(false);
   const [toast,      setToast]      = useState<{ msg: string; ok: boolean } | null>(null);
   const [menuId,     setMenuId]     = useState<number | null>(null);
+
+  useEffect(() => {
+    teamAPI.getAll()
+      .then(r => setMembers(r.data.data))
+      .catch(() => setMembers(INITIAL))
+      .finally(() => setLoading(false));
+  }, []);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -45,38 +54,41 @@ export default function TeamMembers() {
   const handleInvite = async () => {
     if (!email.trim() || !name.trim()) { showToast("Please fill in name and email.", false); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast("Enter a valid email address.", false); return; }
-    if (members.find(m => m.email === email)) { showToast("This email is already a member.", false); return; }
     setSending(true);
-    await new Promise(r => setTimeout(r, 1200)); // simulate API call
-    const newMember: Member = {
-      id: Date.now(), name: name.trim(), email: email.trim(), role, status: "Pending",
-      joined: new Date().toLocaleDateString("en-IN", { month: "short", year: "numeric" }),
-      avatar: name.trim().split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2),
-      color: COLORS[members.length % COLORS.length],
-    };
-    setMembers(prev => [...prev, newMember]);
-    showToast(`✓ Invitation sent to ${email} — they'll receive an email to join GrowEasy.`);
-    setShowInvite(false); setEmail(""); setName(""); setRole("Agent");
+    try {
+      const r = await teamAPI.add({ name: name.trim(), email: email.trim(), role });
+      setMembers(prev => [...prev, r.data.data]);
+      showToast(`✓ Invitation sent to ${email} — they'll receive an email to join GrowEasy.`);
+      setShowInvite(false); setEmail(""); setName(""); setRole("Agent");
+    } catch (err: any) {
+      showToast(err?.response?.data?.message || "Failed to invite member.", false);
+    }
     setSending(false);
   };
 
-  const handleRemove = (id: number) => {
+  const handleRemove = async (id: number) => {
     const m = members.find(m => m.id === id);
     if (!m || m.role === "Owner") return;
     if (!confirm(`Remove ${m.name} from the team?`)) return;
+    await teamAPI.remove(id);
     setMembers(prev => prev.filter(m => m.id !== id));
     showToast(`${m.name} removed from team.`);
     setMenuId(null);
   };
 
-  const handleRoleChange = (id: number, newRole: Role) => {
+  const handleRoleChange = async (id: number, newRole: Role) => {
+    await teamAPI.update(id, { role: newRole });
     setMembers(prev => prev.map(m => m.id === id ? { ...m, role: newRole } : m));
     setMenuId(null);
     showToast("Role updated.");
   };
 
-  const handleToggleStatus = (id: number) => {
-    setMembers(prev => prev.map(m => m.id === id ? { ...m, status: m.status === "Active" ? "Inactive" : "Active" } : m));
+  const handleToggleStatus = async (id: number) => {
+    const m = members.find(m => m.id === id);
+    if (!m) return;
+    const newStatus = m.status === "Active" ? "Inactive" : "Active";
+    await teamAPI.update(id, { status: newStatus });
+    setMembers(prev => prev.map(m => m.id === id ? { ...m, status: newStatus } : m));
     setMenuId(null);
   };
 
@@ -87,6 +99,7 @@ export default function TeamMembers() {
   return (
     <div style={{ background: "#f9fafb", minHeight: "100vh", overflowY: "auto" }}>
       <div style={{ padding: "28px 36px" }}>
+        {loading && <div style={{ textAlign: "center", padding: 40, color: "#9ca3af" }}>Loading...</div>}
 
         {toast && (
           <div style={{ position: "fixed", top: 16, right: 16, zIndex: 300, background: toast.ok ? "#f0fdf4" : "#fef2f2", border: `1px solid ${toast.ok ? "#bbf7d0" : "#fca5a5"}`, color: toast.ok ? "#15803d" : "#dc2626", borderRadius: 10, padding: "12px 16px", fontSize: 13, fontWeight: 500, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", maxWidth: 400 }}>

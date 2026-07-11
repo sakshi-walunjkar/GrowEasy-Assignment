@@ -6,6 +6,15 @@ import { useState } from "react";
 type AccStatus = "Active" | "Paused" | "Not Connected";
 interface Account { id: string; name: string; platform: string; spend: number; leads: number; status: AccStatus; color: string; bg: string; initial: string; }
 
+const PLATFORM_PRESETS: Record<string, { color: string; bg: string; initial: string }> = {
+  linkedin:  { color: "#0077b5", bg: "#e3f2fd",  initial: "in" },
+  twitter:   { color: "#1da1f2", bg: "#e8f5fe",  initial: "X"  },
+  tiktok:    { color: "#010101", bg: "#f3f4f6",  initial: "T"  },
+  snapchat:  { color: "#fffc00", bg: "#fffde7",  initial: "S"  },
+  youtube:   { color: "#ff0000", bg: "#fce4ec",  initial: "Y"  },
+  other:     { color: "#6b7280", bg: "#f3f4f6",  initial: "?"  },
+};
+
 const INITIAL: Account[] = [
   { id: "ADS-001", name: "Google Ads",    platform: "google",    spend: 24500, leads: 342, status: "Active",        color: "#4285f4", bg: "#e8f0fe", initial: "G"  },
   { id: "ADS-002", name: "Facebook Ads", platform: "facebook",  spend: 18200, leads: 218, status: "Active",        color: "#1877f2", bg: "#e7f3ff", initial: "f"  },
@@ -28,6 +37,10 @@ export default function AdAccounts() {
   const [connecting,  setConnecting]  = useState(false);
   const [accountId,   setAccountId]   = useState("");
   const [budget,      setBudget]      = useState("");
+  const [showAdd,     setShowAdd]     = useState(false);
+  const [newName,     setNewName]     = useState("");
+  const [newPlatform, setNewPlatform] = useState("linkedin");
+  const [newAccId,    setNewAccId]    = useState("");
 
   const showMsg = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 3000); };
 
@@ -60,6 +73,22 @@ export default function AdAccounts() {
     setBudget(""); setShowManage(null);
   };
 
+  const handleAddAccount = () => {
+    if (!newName.trim()) { showMsg("Please enter an account name."); return; }
+    const preset = PLATFORM_PRESETS[newPlatform] || PLATFORM_PRESETS.other;
+    const newAcc: Account = {
+      id: `ADS-${String(accounts.length + 1).padStart(3, "0")}`,
+      name: newName.trim(),
+      platform: newPlatform,
+      spend: 0, leads: 0,
+      status: "Not Connected",
+      ...preset,
+    };
+    setAccounts(prev => [...prev, newAcc]);
+    showMsg(`✓ ${newName} added! Click Connect to link it.`);
+    setShowAdd(false); setNewName(""); setNewPlatform("linkedin"); setNewAccId("");
+  };
+
   const connected = accounts.filter(a => a.status !== "Not Connected");
   const totalSpend = accounts.reduce((s, a) => s + a.spend, 0);
   const totalLeads = accounts.reduce((s, a) => s + a.leads, 0);
@@ -80,9 +109,9 @@ export default function AdAccounts() {
             <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0 }}>Ad Accounts</h1>
             <p style={{ color: "#6b7280", fontSize: 13, marginTop: 4 }}>Connect and manage your advertising accounts.</p>
           </div>
-          <button onClick={() => showMsg("Select an account below to connect it.")}
+          <button onClick={() => setShowAdd(true)}
             style={{ display: "flex", alignItems: "center", gap: 7, background: "#111827", color: "#fff", border: "none", borderRadius: 9, padding: "9px 18px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-            <Plus size={14} /> Connect Account
+            <Plus size={14} /> Add Account
           </button>
         </div>
 
@@ -157,6 +186,44 @@ export default function AdAccounts() {
             </div>
           ))}
         </div>
+
+        {/* Add Account modal */}
+        {showAdd && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.4)" }} onClick={() => setShowAdd(false)} />
+            <div style={{ position: "relative", background: "#fff", borderRadius: 16, padding: "28px", width: 440, zIndex: 10, boxShadow: "0 20px 60px rgba(0,0,0,0.15)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "#111827", margin: 0 }}>Add Ad Account</h3>
+                <button onClick={() => setShowAdd(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#9ca3af" }}><X size={18} /></button>
+              </div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Account Name *</label>
+              <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. LinkedIn Ads — India"
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, outline: "none", color: "#111827", boxSizing: "border-box", marginBottom: 14 }} />
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Platform</label>
+              <select value={newPlatform} onChange={e => setNewPlatform(e.target.value)}
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, outline: "none", color: "#111827", marginBottom: 14, background: "#fff" }}>
+                <option value="linkedin">LinkedIn</option>
+                <option value="twitter">Twitter / X</option>
+                <option value="tiktok">TikTok</option>
+                <option value="snapchat">Snapchat</option>
+                <option value="youtube">YouTube</option>
+                <option value="google">Google</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="other">Other</option>
+              </select>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>Account ID <span style={{ fontWeight: 400, color: "#9ca3af" }}>(optional)</span></label>
+              <input value={newAccId} onChange={e => setNewAccId(e.target.value)} placeholder="Leave blank if you don't have it yet"
+                style={{ width: "100%", padding: "9px 12px", border: "1px solid #e5e7eb", borderRadius: 8, fontSize: 13, outline: "none", color: "#111827", boxSizing: "border-box", marginBottom: 20 }} />
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={() => setShowAdd(false)} style={{ flex: 1, padding: "10px", border: "1px solid #e5e7eb", borderRadius: 9, background: "#fff", color: "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancel</button>
+                <button onClick={handleAddAccount} style={{ flex: 2, padding: "10px", border: "none", borderRadius: 9, background: "#111827", color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                  <Plus size={13} /> Add Account
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Connect modal */}
         {showConnect && (
