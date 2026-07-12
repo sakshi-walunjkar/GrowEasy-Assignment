@@ -27,3 +27,11 @@ input  { font-family: inherit; }
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+@media (max-width: 768px) {
+  body { overflow: auto; }
+  .main-content {
+    margin-left: 0 !important;
+    padding-top: 48px;
+  }
+}
