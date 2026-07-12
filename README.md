@@ -7,9 +7,20 @@ A full-stack CRM dashboard with AI-powered CSV lead importing using **Google Gem
 
 ---
 
+## 🚀 Live Deployment
+
+| Service | URL |
+|---------|-----|
+| **Frontend** (Vercel) | https://grow-easy-assignment.vercel.app |
+| **Backend** (Render) | https://groweasy-backend.onrender.com |
+
+> **Note:** Backend is hosted on Render's free tier — it may take **30–60 seconds to wake up** on first request.
+
+---
+
 ## Live Demo Flow
 
-1. Open `http://localhost:3000`
+1. Open the [live frontend](https://grow-easy-assignment.vercel.app)
 2. Click **Import CSV** → drag & drop any CSV file
 3. Review **CSV validation warnings** before confirming
 4. Click **Confirm & Import with AI** → watch **real-time batch progress**
@@ -58,6 +69,7 @@ A full-stack CRM dashboard with AI-powered CSV lead importing using **Google Gem
 - ✅ Import History page with pagination
 - ✅ Unit tests (22 passing)
 - ✅ Docker setup
+- ✅ Deployed on Vercel (frontend) + Render (backend)
 - ✅ Well-written README
 
 ---
@@ -158,7 +170,7 @@ GrowEasy-Assignment/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/GrowEasy-Assignment.git
+git clone https://github.com/sakshi-walunjkar/GrowEasy-Assignment.git
 cd GrowEasy-Assignment
 ```
 
@@ -232,7 +244,31 @@ Expected output: **22 tests passing** covering:
 
 ---
 
-### 5. Docker Setup (Optional)
+### 5. Deployment
+
+#### Backend → Render
+
+1. Go to [render.com](https://render.com) → **New Web Service**
+2. Connect your GitHub repo: `sakshi-walunjkar/GrowEasy-Assignment`
+3. Render auto-detects `render.yaml` — click **Apply**
+4. Set environment variables in Render dashboard:
+   - `GEMINI_API_KEY` → your key from [aistudio.google.com](https://aistudio.google.com/app/apikey)
+   - `FRONTEND_URL` → your Vercel frontend URL (set after deploying frontend)
+5. Deploy — your backend URL will be `https://groweasy-backend.onrender.com`
+
+#### Frontend → Vercel
+
+1. Go to [vercel.com](https://vercel.com) → **New Project**
+2. Import `sakshi-walunjkar/GrowEasy-Assignment` from GitHub
+3. Vercel auto-detects `vercel.json` — root directory is set to `frontend`
+4. Add environment variable:
+   - `NEXT_PUBLIC_API_URL` → `https://groweasy-backend.onrender.com/api`
+5. Deploy — your frontend URL will be `https://grow-easy-assignment.vercel.app`
+6. Go back to Render → update `FRONTEND_URL` to your Vercel URL → redeploy
+
+---
+
+### 6. Docker Setup (Optional)
 
 ```bash
 # From project root
@@ -246,7 +282,7 @@ Set `GEMINI_API_KEY` in `docker-compose.yml` or pass as environment variable.
 
 ---
 
-### 6. Verify TypeScript (Optional)
+### 7. Verify TypeScript (Optional)
 
 ```bash
 cd frontend
@@ -378,8 +414,8 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 | Problem | Fix |
 |---------|-----|
-| `Cannot connect to backend` | Make sure `npm run dev` is running in `backend/` |
-| `CORS error` | Check `FRONTEND_URL` in `backend/.env` matches your frontend URL |
+| `Cannot connect to backend` | Make sure `npm run dev` is running in `backend/` (local) or backend is awake on Render |
+| `CORS error` | Check `FRONTEND_URL` in `backend/.env` (local) or Render env vars (deployed) matches your frontend URL |
 | `Gemini API error` | Verify your API key starts with `AIzaSy` and has no extra spaces |
 | `CSV not uploading` | File must be `.csv` extension, max 10 MB |
 | `0 leads imported` | All rows may lack both email and mobile — check CSV validation warnings |
