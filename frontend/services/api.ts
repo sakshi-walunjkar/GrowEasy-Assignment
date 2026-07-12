@@ -52,3 +52,26 @@ export const fieldsAPI = {
   update:  (id: number, data: { label?: string; type?: string; required?: boolean }) => API.patch(`/fields/${id}`, data),
   remove:  (id: number)                                                              => API.delete(`/fields/${id}`),
 };
+
+export const campaignAPI = {
+  getAll:  ()                                                    => API.get("/campaigns"),
+  add:     (data: { name: string; channel: string })             => API.post("/campaigns", data),
+  update:  (id: number, data: Record<string, unknown>)           => API.patch(`/campaigns/${id}`, data),
+  remove:  (id: number)                                          => API.delete(`/campaigns/${id}`),
+};
+
+export const callAPI = {
+  getAll:  ()                                                                              => API.get("/calls"),
+  add:     (data: { lead_name: string; phone: string; agent: string; call_time: string }) => API.post("/calls", data),
+  update:  (id: number, data: { status?: string; duration?: string; call_time?: string }) => API.patch(`/calls/${id}`, data),
+};
+
+export const whatsappAPI = {
+  getAccount:    ()                                                          => API.get("/whatsapp/account"),
+  connect:       (phone: string)                                             => API.post("/whatsapp/account", { phone }),
+  disconnect:    ()                                                          => API.delete("/whatsapp/account"),
+  getTemplates:  ()                                                          => API.get("/whatsapp/templates"),
+  addTemplate:   (data: { name: string; type: string; body: string })       => API.post("/whatsapp/templates", data),
+  sendTemplate:  (id: number)                                                => API.post(`/whatsapp/templates/${id}/send`, {}),
+  deleteTemplate:(id: number)                                                => API.delete(`/whatsapp/templates/${id}`),
+};

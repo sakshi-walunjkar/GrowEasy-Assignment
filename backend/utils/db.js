@@ -59,6 +59,45 @@ db.exec(`
     type     TEXT NOT NULL DEFAULT 'Text',
     required INTEGER NOT NULL DEFAULT 0
   );
+
+  CREATE TABLE IF NOT EXISTS campaigns (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    channel    TEXT NOT NULL DEFAULT 'Email',
+    sent       INTEGER NOT NULL DEFAULT 0,
+    opened     INTEGER NOT NULL DEFAULT 0,
+    replied    INTEGER NOT NULL DEFAULT 0,
+    status     TEXT NOT NULL DEFAULT 'Draft',
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS call_logs (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    lead_name  TEXT NOT NULL,
+    phone      TEXT NOT NULL,
+    duration   TEXT NOT NULL DEFAULT '0:00',
+    status     TEXT NOT NULL DEFAULT 'Scheduled',
+    agent      TEXT NOT NULL DEFAULT '',
+    call_time  TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS whatsapp_templates (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,
+    type       TEXT NOT NULL DEFAULT 'Greeting',
+    status     TEXT NOT NULL DEFAULT 'Pending',
+    sent       INTEGER NOT NULL DEFAULT 0,
+    body       TEXT NOT NULL,
+    created_at TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS whatsapp_account (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone      TEXT NOT NULL,
+    connected  INTEGER NOT NULL DEFAULT 1,
+    created_at TEXT NOT NULL
+  );
 `);
 
 module.exports = db;

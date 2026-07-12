@@ -6,6 +6,7 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const leadsRoutes  = require("./routes/leadsRoutes");
 const teamRoutes   = require("./routes/teamRoutes");
 const fieldsRoutes = require("./routes/fieldsRoutes");
+const { campaignRoutes, callRoutes, whatsappRoutes } = require("./routes/engageRoutes");
 
 const app = express();
 
@@ -28,6 +29,9 @@ app.use("/api", uploadRoutes);
 app.use("/api/leads", leadsRoutes);
 app.use("/api/team", teamRoutes);
 app.use("/api/fields", fieldsRoutes);
+app.use("/api/campaigns", campaignRoutes);
+app.use("/api/calls", callRoutes);
+app.use("/api/whatsapp", whatsappRoutes);
 
 app.get("/", (_req, res) => {
   res.json({ success: true, message: "GrowEasy Backend Running", version: "1.0.0" });
