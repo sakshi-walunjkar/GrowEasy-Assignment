@@ -10,10 +10,26 @@ const { campaignRoutes, callRoutes, whatsappRoutes } = require("./routes/engageR
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: (origin, callback) => {
+    // allow requests with no origin (curl, Postman, Railway health checks)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    // allow any Vercel preview/production domain for this project
+    if (origin.endsWith(".vercel.app")) return callback(null, true);
+    // allow any Railway domain
+    if (origin.endsWith(".railway.app") || origin.endsWith(".up.railway.app")) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
 
 app.use(express.json({ limit: "20mb" }));

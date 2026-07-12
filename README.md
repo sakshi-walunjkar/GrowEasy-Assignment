@@ -143,15 +143,26 @@ npm test
    - `FRONTEND_URL` — your Vercel URL (fill this in after deploying frontend)
 5. Hit Deploy
 
+**Backend on Railway (alternative to Render)**
+
+1. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
+2. Select your repo, then set the **Root Directory** to `backend`
+3. Railway picks up `railway.json` automatically
+4. Add these environment variables in Railway dashboard:
+   - `GEMINI_API_KEY` — your Gemini key
+   - `FRONTEND_URL` — your Vercel URL (fill this in after deploying frontend)
+   - `NODE_ENV` — `production`
+5. Hit Deploy — copy your Railway backend URL (e.g. `https://groweasy-backend.up.railway.app`)
+
 **Frontend on Vercel**
 
 1. Go to [vercel.com](https://vercel.com) → New Project
 2. Import the same GitHub repo
 3. Vercel reads `vercel.json` and sets the root directory to `frontend` automatically
 4. Add this environment variable:
-   - `NEXT_PUBLIC_API_URL` — your Render backend URL + `/api`
+   - `NEXT_PUBLIC_API_URL` — your Render/Railway backend URL + `/api`
 5. Hit Deploy
-6. Go back to Render and update `FRONTEND_URL` to your Vercel URL, then redeploy
+6. Go back to Render/Railway and update `FRONTEND_URL` to your Vercel URL, then redeploy
 
 **Docker (optional)**
 

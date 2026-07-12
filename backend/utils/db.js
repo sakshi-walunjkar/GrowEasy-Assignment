@@ -1,7 +1,20 @@
 const Database = require("better-sqlite3");
 const path = require("path");
+const fs = require("fs");
 
-const db = new Database(path.join(__dirname, "../groweasy.db"));
+// On Railway/cloud, use /tmp (writable). Locally use project root.
+const dbDir = process.env.DB_PATH
+  ? path.dirname(process.env.DB_PATH)
+  : process.env.RAILWAY_ENVIRONMENT
+  ? "/tmp"
+  : path.join(__dirname, "..");
+
+const dbPath = process.env.DB_PATH
+  || (process.env.RAILWAY_ENVIRONMENT ? "/tmp/groweasy.db" : path.join(__dirname, "../groweasy.db"));
+
+if (!fs.existsSync(dbDir)) fs.mkdirSync(dbDir, { recursive: true });
+
+const db = new Database(dbPath);
 
 // Enable WAL mode for better concurrent read performance
 db.pragma("journal_mode = WAL");
