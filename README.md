@@ -1,199 +1,95 @@
-# GrowEasy — AI-Powered CRM Lead Importer
+# GrowEasy — CRM Lead Importer
 
-> **Applying For:** Software Developer Intern
-> **Submission:** [varun@groweasy.ai](mailto:varun@groweasy.ai)
+A full-stack CRM dashboard where you can upload any CSV file and let AI figure out which columns map to which CRM fields. Built with Next.js, Express, and Google Gemini.
 
-A full-stack CRM dashboard with AI-powered CSV lead importing using **Google Gemini 1.5 Flash**. Upload any CSV file, let AI intelligently map columns to CRM fields, and manage your leads through a clean dashboard.
-
----
-
-## 🚀 Live Deployment
-
-| Service | URL |
-|---------|-----|
-| **Frontend** (Vercel) | https://grow-easy-assignment.vercel.app |
-| **Backend** (Render) | https://groweasy-backend.onrender.com |
-
-> **Note:** Backend is hosted on Render's free tier — it may take **30–60 seconds to wake up** on first request.
+> Applying for: Software Developer Intern
+> Submission to: varun@groweasy.ai
 
 ---
 
-## Live Demo Flow
+## Live Links
 
-1. Open the [live frontend](https://grow-easy-assignment.vercel.app)
-2. Click **Import CSV** → drag & drop any CSV file
-3. Review **CSV validation warnings** before confirming
-4. Click **Confirm & Import with AI** → watch **real-time batch progress**
-5. View **AI Column Mapping** — see exactly what AI mapped
-6. View AI-mapped leads in **Manage Leads**
-7. Track all past imports in **Import History**
-8. Monitor stats on **Dashboard** (auto-refreshes every 30s)
+| | URL |
+|---|---|
+| Frontend | https://grow-easy-assignment.vercel.app |
+| Backend | https://groweasy-backend.onrender.com |
+
+> The backend runs on Render's free tier, so the first request might take 30–60 seconds to wake up. Just wait a moment and try again.
+
+---
+
+## What it does
+
+You upload a CSV file — doesn't matter what the column names are. The app sends it to Gemini AI which figures out what each column means and maps it to the right CRM field. You get a live progress bar while it's processing, and after it's done you can see exactly what got mapped where.
+
+If you don't have a Gemini API key, it still works using a built-in fallback that matches common column name variations.
 
 ---
 
 ## Features
 
-### Core (Fully Functional)
-- **AI CSV Import** — Gemini 1.5 Flash maps any column names to GrowEasy CRM fields automatically
-- **Real-time SSE Progress** — live batch-by-batch progress bar during AI processing (no fake timers)
-- **AI Column Mapping Preview** — after import, shows exactly which original column mapped to which CRM field
-- **CSV Validation Warnings** — warns before confirming if no email/phone column, empty rows, or unknown columns detected
-- **Direct Mapping Fallback** — imports still work 100% even without a Gemini API key
-- **Duplicate Detection** — skips leads whose email or mobile already exists in the CRM
-- **Batch Processing** — processes records in batches of 15 with auto-retry (3 attempts, exponential backoff) on AI failure
-- **Drag & Drop Upload** — react-dropzone with raw CSV preview table (sticky headers, scroll)
-- **Confirm Step** — review raw data before triggering AI processing
-- **Export CSV** — download all leads (or filtered by status) as a CSV file
-- **Import History** — full page showing all past imports with date, counts, success rate, pagination
-- **Manage Leads** — search, filter by status, view all imported leads with pagination, inline status update
-- **Dashboard** — real-time stats: import history bar chart, status donut chart, live stat cards, 30s auto-refresh
-- **API Center** — live backend/Gemini/DB status monitor, per-endpoint test with HTTP status + response time
-- **CRM Fields** — view all 15 system fields, add/edit/delete custom fields (persisted to SQLite)
-- **Team Members** — invite members (persisted to SQLite), role management, activate/deactivate
-- **SQLite persistence** — leads, import history, team members, custom fields stored in `backend/groweasy.db`
+**Import flow**
+- Drag and drop CSV upload
+- Preview your raw data before importing
+- Warnings if the file is missing email/phone columns or has empty rows
+- Live progress bar (real SSE, not a fake timer) while AI processes batches
+- See the full column mapping after import — what original column became what CRM field
 
-### UI Pages (Interactive Modals & State)
-- **Ad Accounts** — connect/manage modals, add custom platforms (LinkedIn, Twitter, TikTok, etc.), budget update, pause/resume
-- **Lead Sources** — connect sources with account ID, status updates dynamically after connecting
-- **WhatsApp Account** — connect phone, create message templates, send messages
-- **Engage Leads** — create campaigns, pause/resume, delete with confirm
-- **Tele Calling** — schedule calls, simulate call outcomes (Connected / Not Answered / Busy)
-- **Generate Leads** — lead generation UI
+**Lead management**
+- Search and filter leads by status
+- Update lead status inline
+- Export leads to CSV (all or filtered by status)
+- Duplicate detection — same email or phone won't be imported twice
 
-### Bonus Features Implemented
-- ✅ Drag & Drop upload
-- ✅ Real-time SSE progress during AI processing
-- ✅ Retry mechanism (3 attempts, exponential backoff)
-- ✅ AI Column Mapping preview modal
-- ✅ CSV validation warnings
-- ✅ Import History page with pagination
-- ✅ Unit tests (22 passing)
-- ✅ Docker setup
-- ✅ Deployed on Vercel (frontend) + Render (backend)
-- ✅ Well-written README
+**Other pages**
+- Dashboard with charts and stats (auto-refreshes every 30s)
+- Import History — see all past imports with success rates
+- CRM Fields — view system fields, add your own custom fields
+- Team Members — invite people, manage roles
+- API Center — check backend/Gemini/DB status, test endpoints live
+- Ad Accounts, Lead Sources, WhatsApp, Engage Leads, Tele Calling pages (UI with modals and state)
 
 ---
 
-## Tech Stack
+## Tech used
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 16, React 19, TypeScript |
-| Styling | Tailwind CSS v4 |
-| Charts | Recharts |
-| Icons | Lucide React |
-| HTTP Client | Axios |
-| File Upload | react-dropzone, papaparse |
-| Backend | Node.js, Express 5 |
-| AI | Google Gemini 1.5 Flash (`@google/generative-ai`) |
-| Database | SQLite via better-sqlite3 |
-| File Parsing | csv-parser, Multer |
-| Testing | Jest (22 unit tests) |
-| Dev Server | Nodemon |
-| Containers | Docker + docker-compose |
+**Frontend** — Next.js 16, React 19, TypeScript, Tailwind CSS v4, Recharts, Axios, react-dropzone
+
+**Backend** — Node.js, Express 5, SQLite (better-sqlite3), Multer, csv-parser
+
+**AI** — Google Gemini 1.5 Flash
+
+**Other** — Jest (22 unit tests), Docker, deployed on Vercel + Render
 
 ---
 
-## Project Structure
+## Running locally
 
-```
-GrowEasy-Assignment/
-├── backend/
-│   ├── __tests__/
-│   │   └── aiService.test.js       # 22 unit tests (date parsing, mapping, batching)
-│   ├── controllers/
-│   │   ├── leadsController.js      # CRUD for leads + stats + CSV export + import history
-│   │   ├── processController.js    # AI processing pipeline + SSE streaming + column mapping
-│   │   ├── uploadController.js     # CSV upload + parse
-│   │   ├── teamController.js       # Team members CRUD
-│   │   └── fieldsController.js     # Custom CRM fields CRUD
-│   ├── middlewares/
-│   │   └── uploadMiddleware.js     # Multer config (10 MB, CSV only)
-│   ├── routes/
-│   │   ├── leadsRoutes.js
-│   │   ├── uploadRoutes.js
-│   │   ├── teamRoutes.js
-│   │   └── fieldsRoutes.js
-│   ├── services/
-│   │   ├── aiService.js            # Gemini AI + direct mapping fallback + date parser + batch callback
-│   │   └── csvService.js           # CSV parsing helpers
-│   ├── utils/
-│   │   └── db.js                   # SQLite setup + schema (leads, import_history, team_members, custom_fields)
-│   ├── server.js                   # Express app
-│   ├── Dockerfile
-│   └── .env                        # PORT, GEMINI_API_KEY, FRONTEND_URL
-│
-├── frontend/
-│   ├── app/
-│   │   ├── page.tsx                # Main layout + page routing + modal orchestration + SSE handling
-│   │   └── layout.tsx
-│   ├── components/
-│   │   ├── Dashboard.tsx           # Real-time stats + charts
-│   │   ├── ImportHistory.tsx       # Full import history page with pagination
-│   │   ├── ManageLeads.tsx         # Lead table + search/filter/export
-│   │   ├── ImportModal.tsx         # CSV upload → preview → import flow
-│   │   ├── PreviewModal.tsx        # Raw CSV preview + validation warnings
-│   │   ├── ResultModal.tsx         # Import results with all 15 CRM fields
-│   │   ├── APICenter.tsx           # Backend monitor + endpoint tester
-│   │   ├── CRMFields.tsx           # Field management + custom fields (DB-backed)
-│   │   ├── TeamMembers.tsx         # Team management (DB-backed)
-│   │   ├── AdAccounts.tsx          # Ad account management + add custom platforms
-│   │   ├── LeadSources.tsx         # Lead source connect with dynamic status
-│   │   ├── EngageLeads.tsx
-│   │   ├── TeleCalling.tsx
-│   │   ├── WhatsAppAccount.tsx
-│   │   └── Sidebar.tsx
-│   ├── services/
-│   │   └── api.ts                  # Axios instance + leadsAPI + uploadAPI + teamAPI + fieldsAPI
-│   ├── types/
-│   │   └── crm.ts                  # TypeScript interfaces
-│   └── Dockerfile
-│
-├── docker-compose.yml
-└── TestFiles/
-    ├── CRM_leads_import_29th_june.csv   # Real CRM data test file
-    └── addresses.csv                    # Generic CSV test file
-```
+You need Node.js 18+ installed. A Gemini API key is optional.
 
----
-
-## Setup Instructions
-
-### Prerequisites
-
-- **Node.js 18+** — [download](https://nodejs.org)
-- **npm** (comes with Node.js)
-- A free **Google Gemini API key** — [get one here](https://aistudio.google.com/app/apikey) *(optional — imports work without it)*
-
----
-
-### 1. Clone the Repository
+**1. Clone the repo**
 
 ```bash
 git clone https://github.com/sakshi-walunjkar/GrowEasy-Assignment.git
 cd GrowEasy-Assignment
 ```
 
----
-
-### 2. Backend Setup
+**2. Start the backend**
 
 ```bash
 cd backend
 npm install
 ```
 
-Create `backend/.env`:
+Create a file called `.env` inside the `backend` folder:
 
-```env
+```
 PORT=5000
-GEMINI_API_KEY=AIzaSy...your_key_here
+GEMINI_API_KEY=your_key_here
 FRONTEND_URL=http://localhost:3000
 ```
 
-> **No Gemini key?** Leave it as `your_gemini_api_key_here` — the app uses direct column mapping fallback and all imports still work.
-
-Start the backend:
+Get a free Gemini key at [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey). If you skip it, imports still work via fallback mapping.
 
 ```bash
 npm run dev
@@ -201,237 +97,180 @@ npm run dev
 
 Backend runs at `http://localhost:5000`
 
----
+**3. Start the frontend**
 
-### 3. Frontend Setup
-
-Open a **new terminal**:
+Open a new terminal:
 
 ```bash
 cd frontend
 npm install
 ```
 
-Create `frontend/.env.local`:
+Create a file called `.env.local` inside the `frontend` folder:
 
-```env
+```
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
-
-Start the frontend:
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open `http://localhost:3000` in your browser.
 
 ---
 
-### 4. Run Unit Tests
+## Running tests
 
 ```bash
 cd backend
 npm test
 ```
 
-Expected output: **22 tests passing** covering:
-- Date parsing (ISO, Indian format, Unix timestamp)
-- Column alias mapping
-- Skip invalid records
-- CRM status normalization
-- Batch processing with callbacks
+22 tests covering date parsing, column mapping, duplicate detection, status normalization, and batch processing.
 
 ---
 
-### 5. Deployment
+## Deploying
 
-#### Backend → Render
+**Backend on Render**
 
-1. Go to [render.com](https://render.com) → **New Web Service**
-2. Connect your GitHub repo: `sakshi-walunjkar/GrowEasy-Assignment`
-3. Render auto-detects `render.yaml` — click **Apply**
-4. Set environment variables in Render dashboard:
-   - `GEMINI_API_KEY` → your key from [aistudio.google.com](https://aistudio.google.com/app/apikey)
-   - `FRONTEND_URL` → your Vercel frontend URL (set after deploying frontend)
-5. Deploy — your backend URL will be `https://groweasy-backend.onrender.com`
+1. Go to [render.com](https://render.com) → New Web Service
+2. Connect your GitHub repo
+3. Render picks up `render.yaml` automatically — just click Apply
+4. Add these environment variables in the Render dashboard:
+   - `GEMINI_API_KEY` — your Gemini key
+   - `FRONTEND_URL` — your Vercel URL (fill this in after deploying frontend)
+5. Hit Deploy
 
-#### Frontend → Vercel
+**Frontend on Vercel**
 
-1. Go to [vercel.com](https://vercel.com) → **New Project**
-2. Import `sakshi-walunjkar/GrowEasy-Assignment` from GitHub
-3. Vercel auto-detects `vercel.json` — root directory is set to `frontend`
-4. Add environment variable:
-   - `NEXT_PUBLIC_API_URL` → `https://groweasy-backend.onrender.com/api`
-5. Deploy — your frontend URL will be `https://grow-easy-assignment.vercel.app`
-6. Go back to Render → update `FRONTEND_URL` to your Vercel URL → redeploy
+1. Go to [vercel.com](https://vercel.com) → New Project
+2. Import the same GitHub repo
+3. Vercel reads `vercel.json` and sets the root directory to `frontend` automatically
+4. Add this environment variable:
+   - `NEXT_PUBLIC_API_URL` — your Render backend URL + `/api`
+5. Hit Deploy
+6. Go back to Render and update `FRONTEND_URL` to your Vercel URL, then redeploy
 
----
-
-### 6. Docker Setup (Optional)
+**Docker (optional)**
 
 ```bash
-# From project root
 docker-compose up --build
 ```
 
-- Frontend: `http://localhost:3000`
-- Backend: `http://localhost:5000`
-
-Set `GEMINI_API_KEY` in `docker-compose.yml` or pass as environment variable.
+Frontend at `http://localhost:3000`, backend at `http://localhost:5000`. Set `GEMINI_API_KEY` in `docker-compose.yml`.
 
 ---
 
-### 7. Verify TypeScript (Optional)
+## Project structure
 
-```bash
-cd frontend
-npx tsc --noEmit
-# exits 0 — no errors
+```
+GrowEasy-Assignment/
+├── backend/
+│   ├── __tests__/          # Jest unit tests
+│   ├── controllers/        # Route handlers (leads, upload, process, team, fields)
+│   ├── middlewares/        # Multer file upload config
+│   ├── routes/             # Express route definitions
+│   ├── services/           # AI logic (Gemini + fallback), CSV parsing
+│   ├── utils/db.js         # SQLite setup and schema
+│   └── server.js           # Express app entry point
+│
+├── frontend/
+│   ├── app/                # Next.js app router (page.tsx is the main layout)
+│   ├── components/         # All UI components
+│   ├── services/api.ts     # Axios API calls
+│   └── types/crm.ts        # TypeScript types
+│
+├── TestFiles/              # Sample CSVs to test the importer
+├── render.yaml             # Render deployment config
+├── vercel.json             # Vercel deployment config
+└── docker-compose.yml
 ```
 
 ---
 
-## API Endpoints
+## API endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
+| Method | Endpoint | What it does |
+|--------|----------|--------------|
 | GET | `/` | Health check |
-| POST | `/api/upload` | Upload & parse CSV file |
-| POST | `/api/process` | AI-extract CRM fields (standard) |
-| POST | `/api/process-stream` | AI-extract with SSE real-time progress |
-| GET | `/api/leads` | Fetch all leads (`?q=`, `?status=`, `?page=`, `?limit=`) |
-| GET | `/api/leads/stats` | Lead stats + import history |
-| GET | `/api/leads/export` | Download leads as CSV (`?status=` filter) |
-| GET | `/api/leads/import-history` | Full paginated import history |
-| GET | `/api/leads/:id` | Get single lead |
-| PATCH | `/api/leads/:id` | Update lead fields |
-| DELETE | `/api/leads/:id` | Delete single lead |
-| DELETE | `/api/leads` | Clear all leads and history |
-| GET | `/api/gemini-status` | Check if Gemini API key is configured |
-| GET | `/api/team` | Get all team members |
-| POST | `/api/team` | Invite team member |
-| PATCH | `/api/team/:id` | Update member role/status |
-| DELETE | `/api/team/:id` | Remove team member |
-| GET | `/api/fields` | Get custom CRM fields |
-| POST | `/api/fields` | Add custom field |
-| PATCH | `/api/fields/:id` | Update custom field |
-| DELETE | `/api/fields/:id` | Delete custom field |
+| POST | `/api/upload` | Upload and parse a CSV |
+| POST | `/api/process` | Run AI extraction (returns JSON) |
+| POST | `/api/process-stream` | Run AI extraction with live SSE progress |
+| GET | `/api/leads` | Get leads (supports search, filter, pagination) |
+| GET | `/api/leads/stats` | Stats for the dashboard |
+| GET | `/api/leads/export` | Download leads as CSV |
+| GET | `/api/leads/import-history` | All past imports |
+| PATCH | `/api/leads/:id` | Update a lead |
+| DELETE | `/api/leads/:id` | Delete a lead |
+| DELETE | `/api/leads` | Clear everything |
+| GET | `/api/gemini-status` | Check if Gemini key is set |
+| GET/POST/PATCH/DELETE | `/api/team` | Team member management |
+| GET/POST/PATCH/DELETE | `/api/fields` | Custom CRM field management |
 
 ---
 
-## CRM Fields
+## CRM fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `created_at` | DateTime | Lead creation timestamp |
-| `name` | Text | Full name |
-| `email` | Email | Email address |
-| `country_code` | Text | Phone country code (e.g. +91) |
-| `mobile_without_country_code` | Phone | Mobile number digits only |
-| `company` | Text | Company / organization |
-| `city` | Text | City |
-| `state` | Text | State / province |
-| `country` | Text | Country |
-| `lead_owner` | Email | Assigned agent email |
-| `crm_status` | Dropdown | `GOOD_LEAD_FOLLOW_UP` / `DID_NOT_CONNECT` / `BAD_LEAD` / `SALE_DONE` |
-| `crm_note` | TextArea | Notes, remarks, extra info |
-| `data_source` | Dropdown | Lead source channel |
-| `possession_time` | Text | Property possession timeline |
-| `description` | TextArea | Additional description |
+These are the 15 fields every lead gets mapped to:
 
----
-
-## How AI Extraction Works
-
-1. CSV is parsed into JSON rows by the backend
-2. Rows are split into **batches of 15**
-3. Each batch is sent to **Gemini 1.5 Flash** with a detailed system prompt
-4. **SSE events** stream real-time progress back to the frontend per batch
-5. Gemini maps any column names → GrowEasy CRM fields
-6. If Gemini fails → automatic **fallback to direct column alias mapping**
-7. Records with neither email nor mobile are **skipped**
-8. Records whose email or mobile **already exist** in the DB are skipped as duplicates
-9. All extracted records are saved to SQLite in a single transaction
-10. **Column mapping summary** returned showing original column → CRM field
-
-**Fallback mapping handles column name variations like:**
-- `Full Name`, `Contact Name`, `Customer` → `name`
-- `Phone`, `Mobile`, `Cell`, `Ph No` → `mobile_without_country_code`
-- `Remarks`, `Notes`, `Comment` → `crm_note`
-- `Status`, `Lead Status`, `Stage` → `crm_status`
-
-**Date parsing handles:**
-- ISO 8601: `2026-05-13T14:20:48Z`
-- Indian format: `13/06/2026`, `13-06-2026`
-- Natural language: `June 13 2026`, `13-Jun-2026`
-- Unix timestamps: `1718265600` (10-digit) or `1718265600000` (13-digit)
+| Field | Description |
+|-------|-------------|
+| `name` | Full name |
+| `email` | Email address |
+| `country_code` | Phone country code (e.g. +91) |
+| `mobile_without_country_code` | Phone number without country code |
+| `company` | Company name |
+| `city` | City |
+| `state` | State |
+| `country` | Country |
+| `lead_owner` | Assigned agent's email |
+| `crm_status` | GOOD_LEAD_FOLLOW_UP / DID_NOT_CONNECT / BAD_LEAD / SALE_DONE |
+| `crm_note` | Any notes or remarks |
+| `data_source` | Where the lead came from |
+| `possession_time` | Property possession timeline |
+| `description` | Extra info |
+| `created_at` | When the lead was imported |
 
 ---
 
-## CSV Validation Warnings
+## How the AI import works
 
-Before confirming import, the preview step automatically checks for:
+1. You upload a CSV — it gets parsed into rows
+2. Rows are split into batches of 15
+3. Each batch goes to Gemini with a prompt explaining the CRM fields
+4. Gemini maps whatever column names you have to the right CRM fields
+5. Progress streams back live via SSE so you see a real progress bar
+6. If Gemini fails on a batch, it retries up to 3 times with backoff
+7. If Gemini is unavailable entirely, a fallback mapper handles common column name variations
+8. Rows without email or phone are skipped
+9. Rows with an email/phone already in the DB are skipped as duplicates
+10. Everything else gets saved to SQLite
 
-| Warning | Type |
-|---------|------|
-| No email or phone column detected | 🔴 Warning |
-| Only email found (no phone) | 🔵 Info |
-| Only phone found (no email) | 🔵 Info |
-| No name column detected | 🔵 Info |
-| Completely empty rows found | 🔴 Warning |
-| Unrecognized column names | 🔵 Info (AI will map) |
-| Large file (200+ rows) | 🔵 Info (shows batch count) |
+The fallback handles things like: `Full Name` → `name`, `Phone / Mobile / Cell` → `mobile_without_country_code`, `Remarks / Notes` → `crm_note`, etc.
 
----
-
-## Test Files
-
-Two CSV files are included in `TestFiles/` to test the importer:
-
-- `CRM_leads_import_29th_june.csv` — real CRM format with standard column names
-- `addresses.csv` — generic address data to test AI column mapping
+Date formats supported: ISO 8601, Indian format (DD/MM/YYYY), natural language (June 13 2026), Unix timestamps.
 
 ---
 
-## Environment Variables Reference
+## Common issues
 
-**`backend/.env`**
-```env
-PORT=5000
-GEMINI_API_KEY=AIzaSy...          # Get from aistudio.google.com/app/apikey
-FRONTEND_URL=http://localhost:3000
-```
+**Backend not connecting** — make sure `npm run dev` is running in the `backend` folder. On Render, the free tier sleeps after inactivity — just wait 30–60s.
 
-**`frontend/.env.local`**
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
+**CORS error** — the `FRONTEND_URL` in your backend `.env` needs to exactly match where your frontend is running.
+
+**Gemini error** — check your API key starts with `AIzaSy` and has no extra spaces.
+
+**0 leads imported** — your CSV rows probably don't have email or phone. Check the validation warnings on the preview screen.
+
+**Port 5000 in use** — change `PORT=5001` in `backend/.env` and update `NEXT_PUBLIC_API_URL` to match.
 
 ---
 
-## Troubleshooting
+## Test files
 
-| Problem | Fix |
-|---------|-----|
-| `Cannot connect to backend` | Make sure `npm run dev` is running in `backend/` (local) or backend is awake on Render |
-| `CORS error` | Check `FRONTEND_URL` in `backend/.env` (local) or Render env vars (deployed) matches your frontend URL |
-| `Gemini API error` | Verify your API key starts with `AIzaSy` and has no extra spaces |
-| `CSV not uploading` | File must be `.csv` extension, max 10 MB |
-| `0 leads imported` | All rows may lack both email and mobile — check CSV validation warnings |
-| `Duplicate leads skipped` | Expected — same email/mobile won't be imported twice |
-| Port 5000 in use | Change `PORT=5001` in `backend/.env` and update `NEXT_PUBLIC_API_URL` |
-| `Stream failed` error | Backend may not support SSE — check Express version is 5.x |
+Two sample CSVs are in the `TestFiles/` folder:
 
----
-
-## Key Design Decisions
-
-- **SSE over WebSockets** — simpler, HTTP-native, perfect for one-way progress streaming
-- **No auth required** — single-user local CRM tool as per assignment scope
-- **SQLite over PostgreSQL** — zero-config, file-based, perfect for local demo
-- **Gemini lazy-init** — AI model only initializes when a valid key is present, no crash on startup
-- **Batch size 15** — balances Gemini token limits vs. number of API calls
-- **WAL mode** — SQLite Write-Ahead Logging for better concurrent read performance
-- **Transaction inserts** — all leads from one import saved atomically (all-or-nothing)
-- **Dual endpoints** — `/api/process` (standard JSON) + `/api/process-stream` (SSE) for flexibility
+- `CRM_leads_import_29th_june.csv` — standard CRM format, tests direct mapping
+- `addresses.csv` — generic address data, tests AI column mapping
