@@ -129,11 +129,11 @@ export default function Home() {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", width: "100vw", overflow: "hidden", background: "#f9fafb" }}>
+    <div className="app-shell">
 
       <Sidebar activePage={page} onNavigate={navigate} />
 
-      <div style={{ marginLeft: 220, flex: 1, overflowY: "auto", height: "100vh" }} className="main-content">
+      <div className="main-content">
         {page === "import-history"  && <ImportHistory   onImportClick={openImport} />}
         {page === "dashboard"        && <Dashboard       onNavigate={navigate} />}
         {page === "generate-leads"   && <GenerateLeads   onNavigate={navigate} />}
