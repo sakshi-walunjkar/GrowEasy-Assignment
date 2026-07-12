@@ -35,3 +35,23 @@ input  { font-family: inherit; }
     padding-top: 48px;
   }
 }
+
+/* Dashboard responsive */
+@media (max-width: 768px) {
+  .dash-stats { grid-template-columns: repeat(2, 1fr) !important; }
+  .dash-row1  { grid-template-columns: 1fr !important; }
+  .dash-row2  { grid-template-columns: 1fr !important; }
+  .dash-header { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+  .dash-header-btns { width: 100% !important; justify-content: flex-end !important; }
+  .dash-pad { padding: 16px !important; }
+
+  /* ManageLeads responsive */
+  .ml-header { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+  .ml-header-btns { width: 100% !important; flex-wrap: wrap !important; }
+  .ml-stats { grid-template-columns: repeat(2, 1fr) !important; padding: 16px !important; }
+  .ml-toolbar { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+  .ml-search { width: 100% !important; }
+  .ml-search input { width: 100% !important; }
+  .ml-pad { padding: 16px !important; }
+  .ml-drawer { width: 100% !important; top: auto !important; height: 70vh !important; border-top: 1px solid #e5e7eb !important; border-left: none !important; }
+}

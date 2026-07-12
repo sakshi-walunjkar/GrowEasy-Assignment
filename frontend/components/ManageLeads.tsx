@@ -140,13 +140,12 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
     <div style={{ background: "#f9fafb", minHeight: "100vh" }}>
 
       {/* Header */}
-      <div style={{ padding: "28px 36px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div style={{ padding: "28px 36px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between" }} className="ml-header ml-pad">
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0 }}>Manage Leads</h1>
           <p style={{ color: "#6b7280", fontSize: 13, marginTop: 4 }}>View, search, filter and update all your imported CRM leads.</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          {total > 0 && (
+        <div style={{ display: "flex", gap: 8 }} className="ml-header-btns">
             <>
               <button onClick={handleExport} style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", color: "#059669", border: "1px solid #a7f3d0", borderRadius: 9, padding: "9px 14px", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
                 <Download size={13} /> Export CSV
@@ -172,7 +171,7 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
       )}
 
       {/* Stats cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 14, padding: "20px 36px 0" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 14, padding: "20px 36px 0" }} className="ml-stats">
         {[
           { label: "Total Leads", value: stats?.totalLeads ?? total,                   color: "#111827", bg: "#fff",    border: "#e5e7eb", filter: "" },
           { label: "Good Leads",  value: stats?.byStatus.GOOD_LEAD_FOLLOW_UP ?? 0,     color: "#15803d", bg: "#f0fdf4", border: "#bbf7d0", filter: "GOOD_LEAD_FOLLOW_UP" },
@@ -189,10 +188,10 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
       </div>
 
       {/* Table card */}
-      <div style={{ margin: "16px 36px 36px", background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
+      <div style={{ margin: "16px 36px 36px", background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }} className="ml-pad" style={{ margin: "16px", background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
 
         {/* Toolbar */}
-        <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f3f4f6" }}>
+        <div style={{ padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #f3f4f6" }} className="ml-toolbar">
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <span style={{ fontWeight: 600, color: "#111827", fontSize: 14 }}>Leads</span>
             {total > 0 && <span style={{ fontSize: 12, color: "#9ca3af", background: "#f3f4f6", borderRadius: 999, padding: "2px 8px" }}>{total}</span>}
@@ -203,7 +202,7 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ display: "flex", alignItems: "center", border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }}>
+            <div style={{ display: "flex", alignItems: "center", border: "1px solid #e5e7eb", borderRadius: 8, overflow: "hidden" }} className="ml-search">
               <input
                 type="text"
                 placeholder="Search name, email, phone, company..."
@@ -351,7 +350,7 @@ export default function ManageLeads({ refreshKey = 0, onReset, onImportClick }: 
 
       {/* Lead detail drawer */}
       {selected && (
-        <div style={{ position: "fixed", right: 0, top: 0, bottom: 0, width: 340, background: "#fff", borderLeft: "1px solid #e5e7eb", zIndex: 40, overflowY: "auto", boxShadow: "-4px 0 24px rgba(0,0,0,0.1)" }}>
+        <div style={{ position: "fixed", right: 0, top: 0, bottom: 0, width: 340, background: "#fff", borderLeft: "1px solid #e5e7eb", zIndex: 40, overflowY: "auto", boxShadow: "-4px 0 24px rgba(0,0,0,0.1)" }} className="ml-drawer">
           <div style={{ padding: "18px 20px 14px", borderBottom: "1px solid #f3f4f6", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "#fff", zIndex: 1 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 34, height: 34, borderRadius: "50%", background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "#3b82f6" }}>

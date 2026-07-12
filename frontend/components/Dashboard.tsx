@@ -87,17 +87,17 @@ export default function Dashboard({ onNavigate }: Props) {
 
   return (
     <div style={{ background: "#f9fafb", minHeight: "100vh", overflowY: "auto" }}>
-      <div style={{ padding: "24px 32px" }}>
+      <div style={{ padding: "24px 32px" }} className="dash-pad">
 
         {/* Header */}
-        <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div style={{ marginBottom: 20, display: "flex", alignItems: "flex-start", justifyContent: "space-between" }} className="dash-header">
           <div>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: "#111827", margin: 0 }}>Dashboard</h1>
             <p style={{ color: "#6b7280", fontSize: 13, marginTop: 3 }}>
               {loading ? "Loading live data..." : `${total} leads in your CRM · updated ${lastFetch}`}
             </p>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8 }} className="dash-header-btns">
             <button onClick={fetchStats} disabled={loading}
               style={{ display: "flex", alignItems: "center", gap: 6, background: "#fff", color: "#374151", border: "1px solid #e5e7eb", borderRadius: 9, padding: "8px 14px", fontWeight: 600, fontSize: 13, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.6 : 1 }}>
               <RefreshCw size={13} style={{ animation: loading ? "spin 1s linear infinite" : "none" }} /> Refresh
@@ -110,7 +110,7 @@ export default function Dashboard({ onNavigate }: Props) {
         </div>
 
         {/* Stats row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }} className="dash-stats">
           {statCards.map(s => {
             const Icon = s.icon;
             return (
@@ -130,7 +130,7 @@ export default function Dashboard({ onNavigate }: Props) {
         </div>
 
         {/* Row 1: Import history bar + Status donut */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 16, marginBottom: 16 }} className="dash-row1">
 
           {/* Import history bar */}
           <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: "18px 20px" }}>
@@ -205,7 +205,7 @@ export default function Dashboard({ onNavigate }: Props) {
         </div>
 
         {/* Row 2: Recent imports + Quick actions */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16 }} className="dash-row2">
 
           {/* Recent imports */}
           <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, overflow: "hidden" }}>
