@@ -47,26 +47,16 @@ input  { font-family: inherit; }
 /* ── Mobile ── */
 @media (max-width: 768px) {
   body          { overflow: auto; }
-  .app-shell    { flex-direction: column; height: auto; min-height: 100vh; overflow: visible; }
-  .main-content { margin-left: 0 !important; height: auto !important; overflow-y: visible !important; padding-top: 52px; min-height: 100vh; }
-
-  /* Dashboard mobile */
-  .dash-pad         { padding: 14px !important; }
-  .dash-header      { flex-direction: column !important; gap: 10px !important; }
-  .dash-header-btns { width: 100% !important; flex-wrap: wrap !important; }
-  .dash-stats       { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
-  .dash-row1        { grid-template-columns: 1fr !important; }
-  .dash-row2        { grid-template-columns: 1fr !important; }
-
-  /* ManageLeads mobile */
-  .ml-header      { flex-direction: column !important; gap: 10px !important; padding: 14px !important; }
-  .ml-header-btns { width: 100% !important; flex-wrap: wrap !important; }
-  .ml-stats       { grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; padding: 12px 14px !important; }
-  .ml-table-card  { margin: 12px !important; }
-  .ml-toolbar     { flex-direction: column !important; align-items: stretch !important; }
-  .ml-search-row  { width: 100% !important; }
-  .ml-search      { width: 100% !important; flex: 1 !important; }
-  .ml-drawer      { width: 100% !important; top: auto !important; height: 75vh !important; border-top: 1px solid #e5e7eb !important; border-left: none !important; box-shadow: 0 -4px 24px rgba(0,0,0,0.12) !important; }
+  .app-shell    { height: auto; min-height: 100vh; }
+  .main-content {
+    margin-left: 0 !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    padding-top: 52px;
+    min-height: 100vh;
+    width: 100vw;
+  }
 }
 
 @keyframes spin  { to { transform: rotate(360deg); } }
