@@ -11,8 +11,8 @@ A full-stack CRM dashboard where you can upload any CSV file and let AI figure o
 
 | | URL |
 |---|---|
-| Frontend | https://grow-easy-assignment.vercel.app |
-| Backend | https://groweasy-backend.onrender.com |
+| Frontend | https://grow-easy-assignment-ngfpoo1zg-sakshi-walunjkars-projects.vercel.app |
+| Backend | https://groweasy-assignment-4g1q.onrender.com |
 
 > The backend runs on Render's free tier, so the first request might take 30–60 seconds to wake up. Just wait a moment and try again.
 
